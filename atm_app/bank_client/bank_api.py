@@ -11,6 +11,7 @@ class BankAPIResponse(Enum):
 class BankAPIError(Enum):
     BANK_IS_OFFLINE = 1
     AUTHENTICATION_FAILED = 2
+    INSUFFICIENT_BALANCE = 3
 
 class BankAPI:
     def __init__(self):
@@ -56,6 +57,19 @@ class BankAPI:
             if account_num == 1:
                 print('Depositing amount')
                 return None
+        else:
+            print('Bank is offline')
+            return BankAPIError.BANK_IS_OFFLINE
+
+    def withdraw(self, account_num, amount):
+        if self.connection_state == ConnectionState.CONNECTED:
+            if account_num == 1:
+                if amount <= 1000:
+                    print('Withdrawing amount')
+                    return None
+                else:
+                    print('Insufficient balance')
+                    return BankAPIError.INSUFFICIENT_BALANCE
         else:
             print('Bank is offline')
             return BankAPIError.BANK_IS_OFFLINE

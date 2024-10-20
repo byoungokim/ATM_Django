@@ -97,3 +97,20 @@ class TestBankAPI(TestCase):
     bank_api.connect()
     result = bank_api.deposit(1, 100)
     self.assertEqual(result, None)
+
+  def test_withdraw_bank_offline(self):
+    bank_api = BankAPI()
+    result = bank_api.withdraw(1, 100)
+    self.assertEqual(result, BankAPIError.BANK_IS_OFFLINE)
+  
+  def test_withdraw_correct(self):
+    bank_api = BankAPI()
+    bank_api.connect()
+    result = bank_api.withdraw(1, 100)
+    self.assertEqual(result, None)
+  
+  def test_withdraw_insufficient_balance(self):
+    bank_api = BankAPI()
+    bank_api.connect()
+    result = bank_api.withdraw(1, 10000)
+    self.assertEqual(result, BankAPIError.INSUFFICIENT_BALANCE)
