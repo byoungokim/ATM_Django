@@ -86,3 +86,14 @@ class TestBankAPI(TestCase):
     bank_api.connect()
     result, _ = bank_api.get_balance(1)
     self.assertEqual(result, 1000)
+
+  def test_deposit_bank_offline(self):
+    bank_api = BankAPI()
+    result = bank_api.deposit(1, 100)
+    self.assertEqual(result, BankAPIError.BANK_IS_OFFLINE)
+  
+  def test_deposit_correct(self):
+    bank_api = BankAPI()
+    bank_api.connect()
+    result = bank_api.deposit(1, 100)
+    self.assertEqual(result, None)

@@ -50,3 +50,12 @@ class BankAPI:
         else:
             print('Bank is offline')
             return None, BankAPIError.BANK_IS_OFFLINE
+        
+    def deposit(self, account_num, amount):
+        if self.connection_state == ConnectionState.CONNECTED:
+            if account_num == 1:
+                print('Depositing amount')
+                return None
+        else:
+            print('Bank is offline')
+            return BankAPIError.BANK_IS_OFFLINE
