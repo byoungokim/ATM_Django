@@ -7,11 +7,16 @@ class AtmState(Enum):
   WAITING_PIN = 3
   AUTHENTICATED = 4
   WAITING_ACTION = 5
-  CASH_BIN_EMPTY = 6
-  ERROR = 7
+  SHOWING_BALANCE = 6
+  WAITING_FOR_DEPOSIT = 7
+  WAITING_FOR_WITHDRAWAL = 8
+  CASH_BIN_EMPTY = 20
+  ERROR = 99
 
 class AtmError(Enum):
   CARD_CANNOT_BE_INSERTED = 1
+  BANK_IS_OFFLINE = 2
+  INSUFFICIENT_BALANCE = 3
 
 class AtmController():
   def __init__(self):
@@ -85,6 +90,27 @@ class AtmController():
     self.atm_state = AtmState.WAITING_ACTION
     self.show_message('Selected account: ' + account)
   
+  def select_action(self, action):
+    """
+    Selects the action to be performed on the selected account.
+
+    Parameters:
+    action (str): The action selected by the user.
+
+    Returns:
+    None
+    """
+    if self.atm_state != AtmState.WAITING_ACTION:
+      self.show_message('You should select an account first')
+      return AtmState.ERROR
+    if action == 'deposit':
+      self.show_message('Selected action: deposit')
+    elif action == 'withdraw':
+      self.show_message('Selected action: withdraw')
+    else:
+      self.show_message('Invalid action')
+      return AtmState.ERROR
+
   def see_balance(self, account):
     """
     Shows the balance of the selected account.
@@ -92,14 +118,64 @@ class AtmController():
     Returns:
     None
     """
+    if self.atm_state != AtmState.WAITING_ACTION:
+      self.show_message('You should select an account first')
+      return AtmState.ERROR
     result, error = self.bank_api.get_balance(account)
     if error == BankAPIError.BANK_IS_OFFLINE:
       self.show_message('Bank is offline')
-      return AtmState.ERROR
+      return AtmError.BANK_IS_OFFLINE
     else:
       if result:
         self.show_message('Balance: $' + str(result))
+        self.atm_state = AtmState.SHOWING_BALANCE
         return result
+
+  def deposit(self, account, amount):
+    """
+    Deposits an amount to the selected account.
+
+    Parameters:
+    account (str): The account selected by the user.
+    amount (int): The amount to be deposited.
+
+    Returns:
+    None
+    """
+    if self.atm_state != AtmState.WAITING_ACTION:
+      self.show_message('You should select an account first')
+      return AtmState.ERROR
+    result = self.bank_api.deposit(account, amount)
+    if result == BankAPIError.BANK_IS_OFFLINE:
+      self.show_message('Bank is offline')
+      return AtmError.BANK_IS_OFFLINE
+    else:
+      self.show_message('Deposited $' + str(amount))
+
+  def withdraw(self, account, amount):
+    """
+    Withdraws an amount from the selected account.
+
+    Parameters:
+    account (str): The account selected by the user.
+    amount (int): The amount to be withdrawn.
+
+    Returns:
+    None
+    """
+    if self.atm_state != AtmState.WAITING_ACTION:
+      self.show_message('You should select an account first')
+      return AtmState.ERROR
+    error = self.bank_api.withdraw(account, amount)
+    if error == BankAPIError.BANK_IS_OFFLINE:
+      self.show_message('Bank is offline')
+      return AtmError.BANK_IS_OFFLINE
+    elif error == BankAPIError.INSUFFICIENT_BALANCE:
+      self.show_message('Insufficient balance')
+      return AtmError.INSUFFICIENT_BALANCE
+    else:
+      self.show_message('Withdrawn $' + str(amount))
+      return None
 
   def show_message(self, message):
     """

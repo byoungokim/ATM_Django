@@ -38,9 +38,42 @@ class TestAtmController(TestCase):
     self.assertEqual(result, AtmState.ERROR)
 
   def test_see_balance(self):
-    self.atm_controller.atm_state = AtmState.AUTHENTICATED
+    self.atm_controller.atm_state = AtmState.WAITING_ACTION
     result = self.atm_controller.see_balance(1)
     self.assertEqual(result, 1000)
+
+  def test_see_balance_bank_offline(self):
+    self.atm_controller.atm_state = AtmState.WAITING_ACTION
+    self.atm_controller.bank_api.connection_state = ConnectionState.OFFLINE
+    result = self.atm_controller.see_balance(1)
+    self.assertEqual(result, AtmError.BANK_IS_OFFLINE)
+  
+  def test_deposit_offline(self):
+    self.atm_controller.atm_state = AtmState.WAITING_ACTION
+    self.atm_controller.bank_api.connection_state = ConnectionState.OFFLINE
+    result = self.atm_controller.deposit(1, 100)
+    self.assertEqual(result, AtmError.BANK_IS_OFFLINE)  
+
+  def test_deposit_correct(self):
+    self.atm_controller.atm_state = AtmState.WAITING_ACTION
+    result = self.atm_controller.deposit(1, 100)
+    self.assertEqual(result, None)
+  
+  def test_withdraw_offline(self):
+    self.atm_controller.atm_state = AtmState.WAITING_ACTION
+    self.atm_controller.bank_api.connection_state = ConnectionState.OFFLINE
+    result = self.atm_controller.withdraw(1, 100)
+    self.assertEqual(result, AtmError.BANK_IS_OFFLINE)
+  
+  def test_withdraw_correct(self):
+    self.atm_controller.atm_state = AtmState.WAITING_ACTION
+    result = self.atm_controller.withdraw(1, 100)
+    self.assertEqual(result, None)
+  
+  def test_withdraw_insufficient_balance(self):
+    self.atm_controller.atm_state = AtmState.WAITING_ACTION
+    result = self.atm_controller.withdraw(1, 10000)
+    self.assertEqual(result, AtmError.INSUFFICIENT_BALANCE)
 
 class TestBankAPI(TestCase):
   def test_connect(self):
