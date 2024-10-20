@@ -21,11 +21,15 @@ This guide is based on python3
 source $YOUR_VIRTUAL_ENV_ACTIVATE_SCRIPT
 
 pip3 install -r requirements.txt
-
-
 ```
 
 ### Run test code with your django script
 ```bash
 python3 manage.py test
+```
+
+### Run the server
+```bash
+# This will just run a simple server.
+python3 manage.py runserver
 ```
