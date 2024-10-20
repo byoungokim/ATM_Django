@@ -27,8 +27,30 @@ class AtmController():
       if self.atm_state == AtmState.WAITING:
         self.show_message('Please Input Your PIN Number')
         self.atm_state == AtmState.WAITING_PIN
-
+      if self.atm_state == AtmState.WAITING_PIN:
+        self.show_message('You should not insert the card again')
+        return AtmError.CARD_CANNOT_BE_INSERTED
       return self.atm_state
+
+  def check_pin(self, pin):
+    """
+    Checks the PIN entered by the user.
+
+    Parameters:
+    pin (str): The PIN entered by the user.
+
+    Returns:
+    AtmState: The state of the ATM after checking the PIN.
+    """
+    if self.atm_state == AtmState.WAITING_PIN:
+      if pin == '1234':
+        self.show_message('PIN is correct')
+        self.atm_state = AtmState.AUTHENTICATED
+      else:
+        self.show_message('PIN is incorrect')
+        self.atm_state = AtmState.WAITING
+
+    return self.atm_state
 
 
   def show_message(self, message):
