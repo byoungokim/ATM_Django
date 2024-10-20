@@ -9,6 +9,9 @@ But it does not include any important RESTful API here.
 To clone this repository, run the following command:
 ```bash
 git clone https://github.com:byoungokim/ATM_Django.git
+
+# checkout main branch
+git checkout main
 ```
 
 ### Prepare your environment.
