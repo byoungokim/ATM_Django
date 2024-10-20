@@ -30,6 +30,12 @@ class TestAtmController(TestCase):
     self.atm_controller.atm_state = AtmState.WAITING_PIN
     result = self.atm_controller.check_pin('4321')
     self.assertEqual(result, AtmState.WAITING_PIN)
+  
+  def test_check_pin_bank_offline(self):
+    self.atm_controller.atm_state = AtmState.WAITING_PIN
+    self.atm_controller.bank_api.connection_state = ConnectionState.OFFLINE
+    result = self.atm_controller.check_pin('1234')
+    self.assertEqual(result, AtmState.ERROR)
 
 class TestBankAPI(TestCase):
   def test_connect(self):

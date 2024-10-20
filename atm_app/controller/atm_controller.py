@@ -47,6 +47,9 @@ class AtmController():
     """
     if self.atm_state == AtmState.WAITING_PIN:
       result, error = self.bank_api.check_pin(1, pin)
+      if error == BankAPIError.BANK_IS_OFFLINE:
+        self.show_message('Bank is offline')
+        return AtmState.ERROR
       if result == BankAPIResponse.AUTHENTICATED:
         self.show_message('PIN is correct')
         self.atm_state = AtmState.AUTHENTICATED
