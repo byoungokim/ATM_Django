@@ -6,8 +6,9 @@ class AtmState(Enum):
   WAITING = 2
   WAITING_PIN = 3
   AUTHENTICATED = 4
-  CASH_BIN_EMPTY = 5
-  ERROR = 6
+  WAITING_ACTION = 5
+  CASH_BIN_EMPTY = 6
+  ERROR = 7
 
 class AtmError(Enum):
   CARD_CANNOT_BE_INSERTED = 1
@@ -67,6 +68,38 @@ class AtmController():
     """
     self.show_message('Listing accounts')
     self.show_message(self.bank_api.get_accounts().join("\\n"))
+
+  def select_account(self, account):
+    """
+    Selects the account to be used for transactions.
+
+    Parameters:
+    account (str): The account selected by the user.
+
+    Returns:
+    None
+    """
+    if self.atm_state != AtmState.AUTHENTICATED:
+      self.show_message('You are not authenticated')
+      return AtmState.ERROR
+    self.atm_state = AtmState.WAITING_ACTION
+    self.show_message('Selected account: ' + account)
+  
+  def see_balance(self, account):
+    """
+    Shows the balance of the selected account.
+
+    Returns:
+    None
+    """
+    result, error = self.bank_api.get_balance(account)
+    if error == BankAPIError.BANK_IS_OFFLINE:
+      self.show_message('Bank is offline')
+      return AtmState.ERROR
+    else:
+      if result:
+        self.show_message('Balance: $' + str(result))
+        return result
 
   def show_message(self, message):
     """

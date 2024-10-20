@@ -37,6 +37,11 @@ class TestAtmController(TestCase):
     result = self.atm_controller.check_pin('1234')
     self.assertEqual(result, AtmState.ERROR)
 
+  def test_see_balance(self):
+    self.atm_controller.atm_state = AtmState.AUTHENTICATED
+    result = self.atm_controller.see_balance(1)
+    self.assertEqual(result, 1000)
+
 class TestBankAPI(TestCase):
   def test_connect(self):
     bank_api = BankAPI()
@@ -75,7 +80,7 @@ class TestBankAPI(TestCase):
     bank_api = BankAPI()
     _, result = bank_api.get_balance(1)
     self.assertEqual(result, BankAPIError.BANK_IS_OFFLINE)
-  
+
   def test_get_balance_correct(self):
     bank_api = BankAPI()
     bank_api.connect()
