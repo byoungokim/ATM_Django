@@ -32,3 +32,12 @@ class BankAPI:
         else:
             print('Bank is offline')
             return None, BankAPIError.BANK_IS_OFFLINE
+
+    def get_accounts(self, card_num):
+        if self.connection_state == ConnectionState.CONNECTED:
+            if card_num == 1:
+                print('Returning account list')
+                return ['Account 1', 'Account 2', 'Account 3'], None
+        else:
+            print('Bank is offline')
+            return None, BankAPIError.BANK_IS_OFFLINE

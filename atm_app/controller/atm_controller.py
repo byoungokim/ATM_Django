@@ -55,6 +55,16 @@ class AtmController():
 
     return self.atm_state
 
+  def list_accounts(self):
+    """
+    Lists the accounts available for the authenticated user.
+
+    Returns:
+    None
+    """
+    self.show_message('Listing accounts')
+    self.show_message(self.bank_api.get_accounts().join("\\n"))
+
   def show_message(self, message):
     """
     Display a message on the standard output.
