@@ -41,3 +41,12 @@ class BankAPI:
         else:
             print('Bank is offline')
             return None, BankAPIError.BANK_IS_OFFLINE
+
+    def get_balance(self, account_num):
+        if self.connection_state == ConnectionState.CONNECTED:
+            if account_num == 1:
+                print('Returning balance')
+                return 1000, None
+        else:
+            print('Bank is offline')
+            return None, BankAPIError.BANK_IS_OFFLINE

@@ -70,3 +70,14 @@ class TestBankAPI(TestCase):
     bank_api.connect()
     result, _ = bank_api.get_accounts(1)
     self.assertEqual(result, ['Account 1', 'Account 2', 'Account 3'])
+
+  def test_get_balance_bank_offline(self):
+    bank_api = BankAPI()
+    _, result = bank_api.get_balance(1)
+    self.assertEqual(result, BankAPIError.BANK_IS_OFFLINE)
+  
+  def test_get_balance_correct(self):
+    bank_api = BankAPI()
+    bank_api.connect()
+    result, _ = bank_api.get_balance(1)
+    self.assertEqual(result, 1000)
