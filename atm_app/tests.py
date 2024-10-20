@@ -1,5 +1,6 @@
 from django.test import TestCase
 from atm_app.controller.atm_controller import AtmController, AtmState, AtmError
+from atm_app.bank_client.bank_api import BankAPI, ConnectionState, BankAPIResponse, BankAPIError
 
 class TestAtmController(TestCase):
   def setUp(self):
@@ -28,4 +29,27 @@ class TestAtmController(TestCase):
   def test_check_pin_incorrect(self):
     self.atm_controller.atm_state = AtmState.WAITING_PIN
     result = self.atm_controller.check_pin('4321')
-    self.assertEqual(result, AtmState.WAITING)
+    self.assertEqual(result, AtmState.WAITING_PIN)
+
+class TestBankAPI(TestCase):
+  def test_connect(self):
+    bank_api = BankAPI()
+    bank_api.connect()
+    self.assertEqual(bank_api.connection_state, ConnectionState.CONNECTED)
+
+  def test_check_pin_bank_offline(self):
+    bank_api = BankAPI()
+    _, result = bank_api.check_pin(1, '1234')
+    self.assertEqual(result, BankAPIError.BANK_IS_OFFLINE)
+
+  def test_check_pin_correct(self):
+    bank_api = BankAPI()
+    bank_api.connect()
+    result, _ = bank_api.check_pin(1, '1234')
+    self.assertEqual(result, BankAPIResponse.AUTHENTICATED)
+
+  def test_check_pin_incorrect(self):
+    bank_api = BankAPI()
+    bank_api.connect()
+    _, result = bank_api.check_pin(1, '4321')
+    self.assertEqual(result, BankAPIError.AUTHENTICATION_FAILED)

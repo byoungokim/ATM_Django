@@ -1,4 +1,5 @@
 from enum import Enum
+from atm_app.bank_client.bank_api import BankAPI, ConnectionState, BankAPIResponse, BankAPIError
 
 class AtmState(Enum):
   BOOTING = 1
@@ -14,6 +15,8 @@ class AtmError(Enum):
 class AtmController():
   def __init__(self):
     self.atm_state = AtmState.BOOTING
+    self.bank_api = BankAPI()
+    self.bank_api.connect()
 
   def insert_card(self):
       """
@@ -43,15 +46,14 @@ class AtmController():
     AtmState: The state of the ATM after checking the PIN.
     """
     if self.atm_state == AtmState.WAITING_PIN:
-      if pin == '1234':
+      result, error = self.bank_api.check_pin(1, pin)
+      if result == BankAPIResponse.AUTHENTICATED:
         self.show_message('PIN is correct')
         self.atm_state = AtmState.AUTHENTICATED
       else:
         self.show_message('PIN is incorrect')
-        self.atm_state = AtmState.WAITING
 
     return self.atm_state
-
 
   def show_message(self, message):
     """
